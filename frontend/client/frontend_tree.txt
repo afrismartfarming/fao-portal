@@ -1,0 +1,42 @@
+src
+├── api
+│   └── client.js
+├── api.js
+├── App.css
+├── App.jsx
+├── assets
+│   └── react.svg
+├── components
+│   ├── ContentManager
+│   │   ├── ContentForm.jsx
+│   │   ├── ContentManagerUI.jsx
+│   │   └── VersionList.jsx
+│   ├── grm
+│   │   ├── GrmFilters.jsx
+│   │   ├── GrmRow.jsx
+│   │   ├── GrmTable.jsx
+│   │   └── StatusBadge.jsx
+│   ├── Layout.jsx
+│   └── ProtectedRoute.jsx
+├── context
+│   └── AuthContext.jsx
+├── index.css
+├── main.jsx
+├── pages
+│   ├── Analytics.jsx
+│   ├── content
+│   │   ├── ContentDetails.jsx
+│   │   ├── ContentEditor.jsx
+│   │   ├── ContentList.jsx
+│   │   └── MediaLibrary.jsx
+│   ├── Content.jsx
+│   ├── ContentManagerPreview.jsx
+│   ├── Dashboard.jsx
+│   ├── GrmDetails.jsx
+│   ├── Grm.jsx
+│   ├── Login.jsx
+│   ├── Media.jsx
+│   └── Users.jsx
+└── variables.css
+
+8 directories, 31 files

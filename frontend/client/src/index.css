@@ -1,0 +1,45 @@
+/* ------------------------------
+   1) FONT FIRST
+------------------------------ */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap");
+
+/* ------------------------------
+   2) LOAD TAILWIND v4
+------------------------------ */
+@import "tailwindcss";
+
+/* ------------------------------
+   3) FIX TAILWIND v4 RESET BUG
+   (It sets html/body color: transparent)
+------------------------------ */
+html, body {
+  color: #1a1a1a !important;
+  background: #f7f9fb !important;
+  font-family: "Open Sans", sans-serif !important;
+}
+
+/* ------------------------------
+   4) FAO THEME VARIABLES
+------------------------------ */
+/* ============================================================
+   FINAL OVERRIDE — ENFORCE PUBLIC SITE TEXT VISIBILITY
+   ============================================================ */
+html, body, .public-layout {
+  color: #1a1a1a !important;
+  background: #f7f9fb !important;
+}
+
+/* All headings – ensure visible */
+h1, h2, h3, h4, h5, h6 {
+  color: #0f172a !important;
+}
+
+/* Paragraphs, spans, list text */
+p, span, li, a {
+  color: #1a1a1a !important;
+}
+
+/* Fix inherited white text from admin theme */
+.public-layout * {
+  color: inherit !important;
+}
