@@ -7,11 +7,16 @@ import helmet from "helmet";
 const app = express();
 
 // --------------------------------------------------------
-// CORS CONFIG
+// CORS CONFIG — NOW INCLUDES RENDER DOMAINS
 // --------------------------------------------------------
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://fao-portal.onrender.com",
+      "https://fao-portal-1.onrender.com"
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -25,10 +30,4 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // --------------------------------------------------------
-// IMPORTANT: No sanitize libraries here.
-// Node 22 breaks all packages that mutate req.query.
-// --------------------------------------------------------
-
-// --------------------------------------------------------
 export default app;
-
