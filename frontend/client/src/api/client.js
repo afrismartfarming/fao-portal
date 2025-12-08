@@ -1,20 +1,27 @@
-// frontend/client/src/api/client.js
+// ------------------------------
+// Correct Production API URL
+// ------------------------------
+const API_BASE = import.meta.env.VITE_API_URL || "https://fao-portal-1.onrender.com/api";
 
-const API_URL = "https://fao-portal-1.onrender.com/api";   // <--- CORRECT LIVE API
+export const api = {
+  async post(path, body) {
+    return await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`
+      },
+      body: JSON.stringify(body)
+    });
+  },
 
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: API_URL,           // no syntax errors, final form
-  headers: { "Content-Type": "application/json" }
-});
-
-// Automatically attach JWT if exists
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+  async get(path) {
+    return await fetch(`${API_BASE}${path}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token") || ""}`
+      }
+    });
+  }
+};
 
 export default api;
-export { API_URL };
