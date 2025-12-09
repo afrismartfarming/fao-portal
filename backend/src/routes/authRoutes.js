@@ -47,5 +47,14 @@ router.delete("/:id", authorize("admin"), deleteUser);
 /* ----------------------------------------------------------
    EXPORT ROUTER
 ---------------------------------------------------------- */
+
+// TEMP — bypass auth to inspect DB
+import User from "../models/User.js";
+
+router.get("/dev-users", async (req, res) => {
+  const users = await User.find().lean();
+  res.json({ success: true, users });
+});
+
 export default router;
 
