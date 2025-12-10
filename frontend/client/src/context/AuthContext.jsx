@@ -56,23 +56,26 @@ const data = await api.post("/auth/login", { email, password });
   /* ================================================================
      LOGIN — Now correctly parses JSON response
   ================================================================ */
-  async function login({ email, password }) {
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      const data = await res.json();                  // <-- critical
+ /** LOGIN */
+async function login({ email, password }) {
+  try {
+    const data = await api.post("/auth/login", {
+      email,
+      password
+    });
 
-      if (!data?.token) throw new Error("Token missing from response");
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setUser(data.user);
+    setUser(data.user);
 
-      return { success: true };
-    } catch (err) {
-      console.error("LOGIN FAILED:", err);
-      return { success: false, message: "Invalid login" };
-    }
+    return { success: true };
+  } catch (err) {
+    console.error("LOGIN FAILED:", err);
+    return { success: false, message: "Invalid login" };
   }
+}
+
 
   /* ================================================================
      LOGOUT
