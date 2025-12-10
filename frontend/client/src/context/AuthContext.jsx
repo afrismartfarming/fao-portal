@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
   const fetchUser = useCallback(async () => {
     try {
       const res = await api.get("/auth/me");
-      const data = await res.json();          // convert fetch → JSON
+const data = await api.post("/auth/login", { email, password });
 
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
