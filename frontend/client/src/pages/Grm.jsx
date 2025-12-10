@@ -22,15 +22,17 @@ export default function Grm() {
 
   async function loadGrmRecords() {
     try {
-      const res = await api.get("/grm");
+      const res = await api.get("/grm");   // token auto injected
 
-      // FIX — Extract the array of results, not the whole object
-console.log("GRM RAW JSON:", JSON.stringify(res.data.data.results, null, 2));
+      console.log("API GRM RAW:", res);
 
+      const results =
+        res?.data?.results ||
+        res?.data?.data?.results ||       // compatibility
+        res?.results ||
+        [];
 
-      setRecords(res.data.data.results);
-console.log("GRM RAW JSON:", JSON.stringify(res.data.data.results, null, 2));
-
+      setRecords(results);
       setLoading(false);
     } catch (err) {
       console.error("GRM FETCH ERROR:", err);
@@ -39,34 +41,20 @@ console.log("GRM RAW JSON:", JSON.stringify(res.data.data.results, null, 2));
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="p-6 text-center text-red-700 font-semibold">
-        You must be logged in to access GRM data.
-      </div>
-    );
-  }
+  if (!isAuthenticated)
+    return <div className="p-6 text-center text-red-700 font-semibold">
+      You must be logged in to access GRM data.
+    </div>;
 
-  if (loading) {
-    return <div className="p-6">Loading GRM data...</div>;
-  }
+  if (loading) return <div className="p-6">Loading GRM data...</div>;
 
-  if (error) {
-    return (
-      <div className="p-6 text-red-700 font-semibold">
-        {error}
-      </div>
-    );
-  }
+  if (error)
+    return <div className="p-6 text-red-700 font-semibold">{error}</div>;
 
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">
-        Grievance Records Management
-      </h1>
-
+      <h1 className="text-xl font-bold mb-4">Grievance Records Management</h1>
       <GrmTable rows={records} />
     </div>
   );
 }
-
