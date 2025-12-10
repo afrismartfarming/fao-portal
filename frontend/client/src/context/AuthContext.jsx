@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import api from "../api/client";
+import api from "../api/client";           // MUST point to https://fao-portal-1.onrender.com/api
 
 export const AuthContext = createContext(null);
 
@@ -8,42 +8,53 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
+
+  /** Load saved user on refresh */
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
+
   const [loading, setLoading] = useState(true);
 
-  /** Load current user */
+  /** Fetch authenticated user (/auth/me) */
   const fetchUser = useCallback(async () => {
     try {
       const res = await api.get("/auth/me");
       setUser(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
     } catch (err) {
-      console.warn("AUTH LOAD ERROR", err);
+      console.warn("AUTH SESSION INVALID → LOGGING OUT", err?.response?.data || err);
       logout();
     } finally {
       setLoading(false);
     }
   }, []);
 
+  /** On mount — verify token if exists */
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (token) fetchUser();
     else setLoading(false);
 
-    // Listen for forced logout
+    // Auto-logout broadcast listener
     const handler = () => logout();
     window.addEventListener("auth-expired", handler);
 
     return () => window.removeEventListener("auth-expired", handler);
   }, [fetchUser]);
 
-  /** Login */
+  /* ================================================================
+     LOGIN  — FIXED (Now Uses Correct Backend URL via api/client.js)
+  ================================================================ */
   async function login({ email, password }) {
     try {
+      console.log("LOGIN REQUEST:", email, password);
+
       const res = await api.post("/auth/login", { email, password });
+
+      console.log("LOGIN RESPONSE:", res.data);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -52,11 +63,12 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (err) {
+      console.log("LOGIN FAILED:", err?.response?.data || err);
       return { success: false, message: "Invalid login" };
     }
   }
 
-  /** Logout */
+  /* LOGOUT */
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
