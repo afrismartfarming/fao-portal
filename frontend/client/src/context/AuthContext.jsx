@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import api from "../api/client";           // MUST point to https://fao-portal-1.onrender.com/api
+import api from "../api/client";          // MUST resolve to https://fao-portal-1.onrender.com/api
 
 export const AuthContext = createContext(null);
 
@@ -9,7 +9,9 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
 
-  /** Load saved user on refresh */
+  /* ================================================================
+     USER STATE RESTORE (Load from localStorage if exists)
+  ================================================================ */
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
@@ -17,28 +19,34 @@ export function AuthProvider({ children }) {
 
   const [loading, setLoading] = useState(true);
 
-  /** Fetch authenticated user (/auth/me) */
+  /* ================================================================
+     VALIDATE STORED TOKEN → /auth/me
+  ================================================================ */
   const fetchUser = useCallback(async () => {
     try {
       const res = await api.get("/auth/me");
-      setUser(res.data.user);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      const data = await res.json();          // convert fetch → JSON
+
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
     } catch (err) {
-      console.warn("AUTH SESSION INVALID → LOGGING OUT", err?.response?.data || err);
+      console.warn("SESSION INVALID — logging out");
       logout();
     } finally {
       setLoading(false);
     }
   }, []);
 
-  /** On mount — verify token if exists */
+  /* ================================================================
+     ON APP LOAD — If token exists, verify it
+  ================================================================ */
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token) fetchUser();
     else setLoading(false);
 
-    // Auto-logout broadcast listener
+    // Event to force logout across tabs
     const handler = () => logout();
     window.addEventListener("auth-expired", handler);
 
@@ -46,36 +54,38 @@ export function AuthProvider({ children }) {
   }, [fetchUser]);
 
   /* ================================================================
-     LOGIN  — FIXED (Now Uses Correct Backend URL via api/client.js)
+     LOGIN — Now correctly parses JSON response
   ================================================================ */
-/** Login  */
-async function login({ email, password }) {
-  try {
-    const res = await api.post("/auth/login", { email, password });
+  async function login({ email, password }) {
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      const data = await res.json();                  // <-- critical
 
-    // Convert fetch response into JSON
-    const data = await res.json();
+      if (!data?.token) throw new Error("Token missing from response");
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
 
-    setUser(data.user);
-
-    return { success: true };
-  } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    return { success: false, message: "Invalid login" };
+      return { success: true };
+    } catch (err) {
+      console.error("LOGIN FAILED:", err);
+      return { success: false, message: "Invalid login" };
+    }
   }
-}
 
-
-  /* LOGOUT */
+  /* ================================================================
+     LOGOUT
+  ================================================================ */
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
   }
 
+  /* ================================================================
+     PROVIDE AUTH STATE
+  ================================================================ */
   return (
     <AuthContext.Provider
       value={{
