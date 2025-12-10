@@ -48,25 +48,26 @@ export function AuthProvider({ children }) {
   /* ================================================================
      LOGIN  — FIXED (Now Uses Correct Backend URL via api/client.js)
   ================================================================ */
-  async function login({ email, password }) {
-    try {
-      console.log("LOGIN REQUEST:", email, password);
+/** Login  */
+async function login({ email, password }) {
+  try {
+    const res = await api.post("/auth/login", { email, password });
 
-      const res = await api.post("/auth/login", { email, password });
+    // Convert fetch response into JSON
+    const data = await res.json();
 
-      console.log("LOGIN RESPONSE:", res.data);
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    setUser(data.user);
 
-      setUser(res.data.user);
-
-      return { success: true };
-    } catch (err) {
-      console.log("LOGIN FAILED:", err?.response?.data || err);
-      return { success: false, message: "Invalid login" };
-    }
+    return { success: true };
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    return { success: false, message: "Invalid login" };
   }
+}
+
 
   /* LOGOUT */
   function logout() {
